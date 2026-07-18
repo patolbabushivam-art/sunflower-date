@@ -1,0 +1,120 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1">
+<title>For You ❤️</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;font-family:Segoe UI;background:linear-gradient(#8fd8ff,#d8f5ff 45%,#ffe8a3 100%)}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 80% 15%,rgba(255,245,180,.8),transparent 25%);animation:glow 4s infinite alternate}
+@keyframes glow{to{filter:brightness(1.15)}}
+.cloud{position:absolute;font-size:90px;opacity:.65;animation:cloud linear infinite}
+@keyframes cloud{from{transform:translateX(-30vw)}to{transform:translateX(130vw)}}
+.photo{position:absolute;width:210px;padding:10px;background:#fff;border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,.2);opacity:.95;animation:float 7s ease-in-out infinite;z-index:2}
+.photo img{width:100%;display:block;border-radius:4px}
+@keyframes float{50%{transform:translateY(-18px) rotate(3deg)}}
+#card,#final,#intro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#ffffffaa;padding:35px;border-radius:24px;backdrop-filter:blur(12px);text-align:center;z-index:5}
+#card,#final{display:none}
+.buttonArea{position:relative;width:340px;height:70px;margin:auto}
+button{padding:14px 30px;font-size:22px;border:0;border-radius:12px;cursor:pointer}
+#yes{position:absolute;left:92px;top:50%;transform:translate(-50%,-50%);background:#41b853;color:#fff;z-index:20;pointer-events:auto}
+#no{position:fixed;left:0;top:0;transform:translate(-50%,-50%);background:#ea4c5b;color:#fff;transition:left .12s ease-out,top .12s ease-out;z-index:5;pointer-events:auto}
+.heart{position:absolute;font-size:28px;animation:rise 4s linear forwards;z-index:4}
+@keyframes rise{from{transform:translateY(105vh)}to{transform:translateY(-20vh);opacity:0}}
+</style></head><body>
+<script>
+for(let i=0;i<5;i++){let c=document.createElement('div');c.className='cloud';c.textContent='☁️';c.style.top=(Math.random()*30)+'%';c.style.animationDuration=(22+Math.random()*10)+'s';c.style.animationDelay=(-Math.random()*15)+'s';document.body.appendChild(c);}
+const pos=[[10,6,-9],[76,6,8],[2,58,6],[78,58,-7],[34,68,-4]];
+
+for(let i=1;i<=5;i++){
+    let d=document.createElement('div');
+    d.className='photo';
+    d.style.left=pos[i-1][0]+'vw';
+    d.style.top=pos[i-1][1]+'vh';
+    d.style.transform='rotate('+pos[i-1][2]+'deg)';
+    d.innerHTML='<img src="photo'+i+'.png" alt="photo">';
+    document.body.appendChild(d);
+}
+</script>
+<div id="intro"><h2>🌻</h2><h1>Someone has something to ask you...</h1><p>Click anywhere 💛</p></div>
+<div id="card"><h1 id="q"></h1><div class="buttonArea"><button id="yes">YES 💛</button><button id="no">NO</button></div></div>
+<div id="final"><h1>💖 YAYYYY!!</h1><h2>Get ready...<br>Your boyfriend will pick you up in five ❤️</h2></div>
+<script>
+const intro=document.getElementById('intro');
+const card=document.getElementById('card');
+const final=document.getElementById('final');
+const q=document.getElementById('q');
+const yes=document.getElementById('yes');
+const no=document.getElementById('no');
+
+intro.onclick=()=>{intro.style.display='none';card.style.display='block';let t='Will you go on a date with me?';let i=0;(function w(){if(i<=t.length){q.textContent=t.slice(0,i++);setTimeout(w,70)}})();}
+
+let noX = 248;
+let noY = 35;
+let driftDirectionX = 1;
+let driftDirectionY = 1;
+let driftActive = false;
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function driftNoAway(event){
+    const rect = no.getBoundingClientRect();
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const dx = mouseX - centerX;
+    const dy = mouseY - centerY;
+    const distance = Math.hypot(dx, dy) || 1;
+
+    if (distance < 140) {
+        driftActive = true;
+        const push = 6 + (140 - distance) / 18;
+        const moveX = -(dx / distance) * push;
+        const moveY = -(dy / distance) * push;
+        const minX = 40;
+        const maxX = window.innerWidth - 40;
+        const minY = 40;
+        const maxY = window.innerHeight - 40;
+        noX = clamp(noX + moveX, minX, maxX);
+        noY = clamp(noY + moveY, minY, maxY);
+        no.style.left = noX + 'px';
+        no.style.top = noY + 'px';
+    }
+}
+
+function animateNo(){
+    if (!card.style.display || card.style.display !== 'block') return;
+    if (!driftActive) {
+        const driftSpeed = 0.18;
+        noX += driftDirectionX * driftSpeed;
+        noY += driftDirectionY * driftSpeed;
+        const minX = 40;
+        const maxX = window.innerWidth - 40;
+        const minY = 40;
+        const maxY = window.innerHeight - 40;
+        if (noX <= minX || noX >= maxX) driftDirectionX *= -1;
+        if (noY <= minY || noY >= maxY) driftDirectionY *= -1;
+        no.style.left = noX + 'px';
+        no.style.top = noY + 'px';
+    }
+    requestAnimationFrame(animateNo);
+}
+
+window.addEventListener('mousemove', (event) => {
+    if (card.style.display === 'block') {
+        const rect = no.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dx = event.clientX - centerX;
+        const dy = event.clientY - centerY;
+        const distance = Math.hypot(dx, dy) || 1;
+        if (distance < 140) {
+            driftNoAway(event);
+        } else {
+            driftActive = false;
+        }
+    }
+});
+
+animateNo();
+yes.onclick=()=>{card.style.display='none';final.style.display='block';let n=0;let iv=setInterval(()=>{for(let i=0;i<10;i++){let h=document.createElement('div');h.className='heart';h.textContent='💖';h.style.left=Math.random()*100+'vw';document.body.appendChild(h);setTimeout(()=>h.remove(),4000);}if(++n>35)clearInterval(iv);},120);}
+</script></body></html>
